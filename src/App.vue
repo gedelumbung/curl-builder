@@ -406,12 +406,15 @@ export default {
       }
 
       if (this.http_method != "") {
-        curl_command_string = curl_command_string + " -X" + this.http_method;
+        curl_command_string =
+          curl_command_string + " --location --request " + this.http_method;
       }
 
       if (this.is_application_json) {
-        curl_command_string =
-          curl_command_string + ' -H "Content-type: application/json"';
+        if (this.body_type == "json") {
+          curl_command_string =
+            curl_command_string + ' --header "Content-type: application/json"';
+        }
       }
 
       if (this.custom_headers.length > 0) {
@@ -423,7 +426,7 @@ export default {
           ) {
             curl_command_string =
               curl_command_string +
-              ' -H "' +
+              ' --header "' +
               custom_headers[index].key +
               ": " +
               custom_headers[index].value +
@@ -434,7 +437,8 @@ export default {
 
       if (this.body_type == "json" && this.json_body != "") {
         let json_body = JSON.stringify(JSON.parse(this.json_body));
-        curl_command_string = curl_command_string + " -d '" + json_body + "'";
+        curl_command_string =
+          curl_command_string + " --data-raw '" + json_body + "'";
       }
 
       if (this.body_type == "form_urlencoded" && this.custom_fields != "") {
@@ -454,7 +458,11 @@ export default {
           }
         }
 
-        curl_command_string = curl_command_string + " -d '" + str + "'";
+        curl_command_string =
+          curl_command_string + " --data-urlencode '" + str + "'";
+        curl_command_string =
+          curl_command_string +
+          ' --header "Content-Type: application/x-www-form-urlencoded"';
       }
 
       if (this.body_type == "form_data" && this.custom_fields != "") {
@@ -464,15 +472,16 @@ export default {
             this.custom_fields[index].value != ""
           ) {
             let str =
-              " -F '" +
+              " --form '" +
               this.custom_fields[index].key +
               "=" +
               this.custom_fields[index].value +
               "' ";
 
-            console.log(str);
-
             curl_command_string = curl_command_string + str;
+            curl_command_string =
+              curl_command_string +
+              ' --header "Content-Type: multipart/form-data"';
           }
         }
       }
