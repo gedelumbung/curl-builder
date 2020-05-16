@@ -14,3 +14,6 @@
     left: 100%;
     top: 0;
 }
+.custom-label input:checked + svg {
+    display: block !important;
+}
